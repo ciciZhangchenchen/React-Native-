@@ -123,11 +123,25 @@ MessageQueue.spy(true, msg => console.log(msg))
 
 ![image](https://user-images.githubusercontent.com/23628263/171088284-d7ba93a1-5858-47bd-82d0-f84ef6ca8cd5.png)
 
+JS thread会先对其序列化,形成下面一条消息
+
+UIManager.createView([343,"RCTView",31,{"backgroundColor":-16181,"width":200,"height":200}])
+通过Bridge发到ShadowThread。Shadow Tread接收到这条信息后，先反序列化，形成Shadow tree，然后传给Yoga，形成原生布局信息。
+
+接着又通过Bridge传给UI thread。
+
+UI thread 拿到消息后，同样先反序列化，然后根据所给布局信息，进行绘制。
+
+从上面过程可以看到三个线程的交互都是要通过Bridge，因此瓶颈也就在此。
+
+
 ### Brige的缺点
 
 - 有两个不同的领域 JS 和 Native, 他们彼此之间不能相互感知, 也并不能共享相同内存
 - 通信基于 Bridge 的异步通信, 所以并不能保证数据百分百及时传达到另一侧
 - JSON 传输大数据非常慢, 内存不能共享, 所有的传输都是新的复制
+- 序列化。通过JSON格式来传递消息，每次都要经历序列化和反序列化，开销很大。
+- 
 - 无法同步更新 UI, 比方在渲染列表的时候, 滑动大量加载数据, 屏幕可能会发生卡顿或闪烁
 - RN 代码仓库很大, 库比较重, 所以修复 Bug 和开源社区贡献代码的效率也相应更慢
 因此解决 Bridge 的缺点主要遵从三个原则
@@ -136,7 +150,11 @@ MessageQueue.spy(true, msg => console.log(msg))
 - JS 和 Native 减少通信, 在两端无法避免的情况下, 避免通信减少次数, 多个请求可以合成一个
 - 减少 JSON 的大小
 
-### RN 新架构
+对大多数 React Native 应用来说，业务逻辑是运行在 JavaScript 线程上的。这是 React 应用所在的线程，也是发生 API 调用，以及处理触摸事件等操作的线程。更新数据到原生支持的视图是批量进行的，并且在事件循环每进行一次的时候被发送到原生端，这一步通常会在一帧时间结束之前处理完（如果一切顺利的话）
+
+### RN 新架构 (2018年 RN0.59还没有完成，RN0.64完成)
+Since React Native 0.64, Hermes also runs on iOS
+
 > Facebook 团队也正在重新架构整个 RN 框架代码
 
 下面来解释一下这些新概念:
