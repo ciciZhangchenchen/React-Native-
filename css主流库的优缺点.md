@@ -91,3 +91,24 @@ function compose(style1, style2){
 创建一个StyleSheet对象并引用给定的对象。
 
 By the way,返回的对象也会被冻结不可被修改，所以建议在组件外部并使用const声明：
+
+## RN的Color
+
+在React-Native内支持以下5种颜色写法：
+
+- rgb/rgba，如rgb(0, 0, 255)、rgba(0,0,255,1)
+- 十六进制颜色(hex color)
+  如"#F00"(#rgb)、#FF0000"(#rrggbb)、#f0ff"(#rgba)、#ff00ff00"(#rrggbbaa)
+- 色调-饱和度-亮度(Hue-saturation-lightness)，
+  如"hsl(360, 100%, 100%)"、"hsla(360, 100%, 100%, 1.0)"
+- 透明度,rgab(0,0,0,0)的快捷写法："transparent"
+- 称谓颜色(Named colors)，如"red"、"blue"，遵循CSS3 规范
+
+但是做原生拓展时，需要传入的颜色属性往往是 int 单一类型，对于多种可能的颜色格式再在原生代码中格式化肯定是不现实的，
+fb团队也考虑到了这一点，通过开放normalizeColor.js和processColor.js2个文件进行处理。
+```js
+// return 0xFF0000FF
+normalizeColor("red");    
+normalizeColor("#F00");
+```
+
