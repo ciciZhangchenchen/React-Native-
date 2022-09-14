@@ -1,0 +1,93 @@
+# css主流库的优缺点
+
+## 官方用法：StyleSheet
+
+StyleSheet 参考了CSS StyleSheets的类似的抽象写法
+```jsx
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+
+const App = () => (
+  <View style={styles.container}>
+    <Text style={styles.title}>React Native</Text>
+  </View>
+);
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 24,
+    backgroundColor: "#eaeaea"
+  },
+  title: {
+    marginTop: 16,
+    paddingVertical: 8,
+    borderWidth: 4,
+    borderColor: "#20232a",
+    borderRadius: 6,
+    backgroundColor: "#61dafb",
+    color: "#20232a",
+    textAlign: "center",
+    fontSize: 30,
+    fontWeight: "bold"
+  }
+});
+export default App;
+```
+
+## 使用StyleSheet可以提高代码质量：
+
+   通过将样式从render()函数中分离，可以让代码更加容易理解
+   
+   通过命名样式对于语义化低级组件（RN自提供的组件）是一个很好的方案
+   
+## 使用StyleSheet可以提高性能：
+
+  使用StyleSheet.create()创建的样式可以通过ID重复引用，而内联样式则每次都需要创建一个新的对象
+
+  它还允许仅通过桥(bridge)发送一次样式。 所有后续使用都将引用一个ID（尚未实现👈贡献RN的机会来啦）
+## StyleSheet提供的一些API
+
+### hairlineWidth
+该常数始终是像素的整数倍（因此，由其定义的线看起来会很清晰(look crisp?)）并将尝试匹配基础平台上细线的标准宽度。但是您不应该依赖它作为一个恒定值使用，因为在不同平台和屏幕像素下，其值可能会以不同的方式计算。
+
+### absoluteFill
+一个非常常见的创建具有绝对位置和零位置的叠加层样式，因此可以使用 absoluteFill来方便并减少那些不必要的重复样式
+对象已经被冻结，所以无法修改absoluteFill。
+
+### absoluteFillObject
+全屏弹层对象
+```ts
+interface AbsoluteFillStyle {
+        position: 'absolute';
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+    }
+```
+### compose
+组合两种样式，以便style2会覆盖style1中的同类型样式属性。
+
+源码：
+```js
+function compose(style1, style2){
+  if(style1 != null && style2 != null){
+    return ([style1, style2])
+  } else {
+    return style1 != null ? style1 : style2;
+  }
+}
+```
+在DOM diff对比时样式属性则无法保持引用相等，所以需要使用StyleSheet.compose辅助函数方便实现
+
+### flatten
+
+扁平化一个样式对象数组，返回一个聚合的样式对象。
+或者，可以使用此方法查找由StyleSheet.register返回的IDs。
+该方法在内部使用StyleSheetRegistry.getStyleByID(style)来解析由ID表示的样式对象。 因此，将样式对象的数组（StyleSheet.create的实例）分别解析为它们各自的对象，合并为一个对象然后返回。 这也解释了替代用法。
+
+### create
+创建一个StyleSheet对象并引用给定的对象。
+
+By the way,返回的对象也会被冻结不可被修改，所以建议在组件外部并使用const声明：
