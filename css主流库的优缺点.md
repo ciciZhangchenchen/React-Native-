@@ -112,3 +112,41 @@ normalizeColor("red");
 normalizeColor("#F00");
 ```
 
+## styled-component
+
+### 优点
+- Automatic critical CSS:
+
+   styled-components 持续跟踪页面上渲染的组件,并向自动其注入且仅注入样式. 结合使用代码拆分, 可以实现仅加载所需的最少代码.
+   
+- 解决了 class name 冲突:
+
+   styled-components 为样式生成唯一的 class name. 开发者不必再担心 class name 重复,覆盖和拼写错误的问题.
+   
+- CSS 更容易移除
+
+    想要确切的知道代码中某个 class 在哪儿用到是很困难的. 使用 styled-components 则很轻松, 因为每个样式都有其关联的组件. 如果检测到某个组件未使用并且被删除,则其所有的样式也都被删除.
+    
+- 简单的动态样式
+
+    可以很简单直观的实现根据组件的 props 或者全局主题适配样式,无需手动管理数十个 classes.
+    
+- 无痛维护: 
+ 
+  无需搜索不同的文件来查找影响组件的样式.无论代码多庞大，维护起来都是小菜一碟。
+  
+- 自动提供前缀:
+ 
+ 按照当前标准写 CSS,其余的交给 styled-components handle 处理.
+  
+### 缺点
+
+### 参考文档
+
+[中文](https://github.com/hengg/styled-components-docs-zh)
+
+[源码](https://github.com/styled-components/styled-components/blob/main/packages/styled-components/src/models/StyledNativeComponent.ts)
+
+
+
+
